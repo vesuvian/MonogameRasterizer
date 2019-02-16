@@ -16,6 +16,11 @@ namespace MonogameRasterizer.Actors
 			get { return MatrixUtils.Trs(Position, Rotation, Scale); }
 		}
 
+		public Vector3 Forward
+		{
+			get { return Vector3.TransformNormal(Vector3.Forward, Matrix); }
+		}
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>

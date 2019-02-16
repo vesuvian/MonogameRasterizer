@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using MonogameRasterizer.Actors;
+using MonogameRasterizer.Utils;
 
 namespace MonogameRasterizer
 {
 	public sealed class Scene
 	{
-		Random random = new Random();
-
 		private readonly Camera m_Camera;
 
 		public List<MeshActor> Geometry { get; set; }
@@ -16,7 +16,7 @@ namespace MonogameRasterizer
 		public Scene()
 		{
 			m_Camera = new Camera();
-			m_Camera.Transform.Position = Vector3.Backward * 3;
+			m_Camera.Transform.Position = Vector3.Forward * 3 + Vector3.Up + Vector3.Right;
 
 			Geometry = new List<MeshActor>();
 
@@ -46,6 +46,31 @@ namespace MonogameRasterizer
 
 		public void Update(GameTime gameTime)
 		{
+			KeyboardState keyState = Keyboard.GetState();
+
+			Vector3 move = Vector3.Zero;
+
+			if (keyState.IsKeyDown(Keys.E))
+				move += Vector3.Up;
+
+			if (keyState.IsKeyDown(Keys.Q))
+				move += Vector3.Down;
+
+			if (keyState.IsKeyDown(Keys.W))
+				move += Vector3.Forward;
+
+			if (keyState.IsKeyDown(Keys.S))
+				move += Vector3.Backward;
+
+			if (keyState.IsKeyDown(Keys.A))
+				move += Vector3.Left;
+
+			if (keyState.IsKeyDown(Keys.D))
+				move += Vector3.Right;
+
+			move *= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+			m_Camera.Transform.Position += move;
 		}
 	}
 }
