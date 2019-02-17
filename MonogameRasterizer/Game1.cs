@@ -67,6 +67,8 @@ namespace MonogameRasterizer
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update(GameTime gameTime)
 		{
+			Window.Title = string.Format("{0:0.00} fps", 1.0f / gameTime.ElapsedGameTime.TotalSeconds);
+
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
 			    Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
