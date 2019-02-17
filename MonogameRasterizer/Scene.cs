@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonogameRasterizer.Actors;
-using MonogameRasterizer.Utils;
 
 namespace MonogameRasterizer
 {
@@ -46,6 +45,14 @@ namespace MonogameRasterizer
 
 		public void Update(GameTime gameTime)
 		{
+			foreach (var item in Geometry)
+			{
+				item.Transform.Scale = Vector3.One * (float)Math.Cos(gameTime.TotalGameTime.TotalSeconds);
+				item.Transform.Rotation *= Quaternion.CreateFromYawPitchRoll((float)gameTime.ElapsedGameTime.TotalSeconds,
+				                                                             (float)gameTime.ElapsedGameTime.TotalSeconds,
+				                                                             (float)gameTime.ElapsedGameTime.TotalSeconds);
+			}
+
 			KeyboardState keyState = Keyboard.GetState();
 
 			Vector3 move = Vector3.Zero;
