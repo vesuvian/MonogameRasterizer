@@ -11,7 +11,7 @@ namespace MonogameRasterizer.Utils
 			Matrix rMat = Matrix.CreateFromQuaternion(rotation);
 			Matrix sMat = Matrix.CreateScale(scale);
 
-			return tMat * rMat * sMat;
+			return sMat * rMat * tMat;
 		}
 	}
 }
