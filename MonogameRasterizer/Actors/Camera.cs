@@ -18,6 +18,11 @@ namespace MonogameRasterizer.Actors
 
 		public float CanvasHeight { get; set; }
 
+		public Vector3 Forward
+		{
+			get { return -Transform.Forward; }
+		}
+
 		public Matrix Projection
 		{
 			get { return Matrix.CreatePerspectiveFieldOfView(FovRadians, AspectRatio, NearClipPlane, FarClipPlane); }
@@ -85,8 +90,8 @@ namespace MonogameRasterizer.Actors
 				Triangle world = triangle.Transform(geometry.Transform.Matrix);
 
 				// Backface culling
-				if (Vector3.Dot(Transform.Forward, world.Normal) >= 0)
-					continue;
+				//if (Vector3.Dot(world.Centroid - Forward, world.Normal) >= 0)
+				//	continue;
 
 				DrawLine(buffer, worldToCanvas, world.A, world.B, Color.Red);
 				DrawLine(buffer, worldToCanvas, world.B, world.C, Color.Red);

@@ -21,6 +21,11 @@ namespace MonogameRasterizer
 			}
 		}
 
+		public Vector3 Centroid
+		{
+			get { return (A + B + C) / 3.0f; }
+		}
+
 		public Triangle Transform(Matrix transform)
 		{
 			return new Triangle
