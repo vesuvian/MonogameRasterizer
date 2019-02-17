@@ -51,7 +51,7 @@ namespace MonogameRasterizer.Actors
 			DrawAxis(buffer, worldToCanvas);
 
 			foreach (MeshActor item in scene.Geometry)
-				RenderGeometry(buffer, worldToCanvas, item);
+				DrawWireframe(buffer, worldToCanvas, item);
 		}
 
 		private void DrawGrid(Buffer buffer, Matrix worldToCanvas)
@@ -83,15 +83,11 @@ namespace MonogameRasterizer.Actors
 			DrawLine(buffer, worldToCanvas, Vector3.Zero, Vector3.Forward, Color.Blue);
 		}
 
-		private void RenderGeometry(Buffer buffer, Matrix worldToCanvas, MeshActor geometry)
+		private void DrawWireframe(Buffer buffer, Matrix worldToCanvas, MeshActor geometry)
 		{
 			foreach (Triangle triangle in geometry.Mesh.GetTriangles())
 			{
 				Triangle world = triangle.Transform(geometry.Transform.Matrix);
-
-				// Backface culling
-				//if (Vector3.Dot(world.Centroid - Forward, world.Normal) >= 0)
-				//	continue;
 
 				DrawLine(buffer, worldToCanvas, world.A, world.B, Color.Red);
 				DrawLine(buffer, worldToCanvas, world.B, world.C, Color.Red);
