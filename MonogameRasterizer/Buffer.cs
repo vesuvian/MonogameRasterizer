@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using MonogameRasterizer.Utils;
 
 namespace MonogameRasterizer
 {
@@ -7,6 +8,11 @@ namespace MonogameRasterizer
 	{
 		public Rectangle Bounds { get; set; }
 		public uint[] Pixels { get; set; }
+
+		public void Clear()
+		{
+			Array.Clear(Pixels, 0, Pixels.Length);
+		}
 
 		public void DrawLine(Vector2 a, Vector2 b, Color color)
 		{
@@ -60,37 +66,36 @@ namespace MonogameRasterizer
 			Pixels[index] = color.PackedValue;
 		}
 
-		public Vector2 CameraToRaster(Vector3 point)
+		public Vector3 CanvasToNdc(float canvasWidth, float canvasHeight, Vector3 point)
 		{
-			Vector2 screen = CameraToScreen(point);
-			Vector2 ndc = ScreenToNdc(screen);
+			Vector3 screen = CanvasToScreen(point);
+			return ScreenToNdc(canvasWidth, canvasHeight, screen);
+		}
+
+		public Vector3 CanvasToScreen(Vector3 point)
+		{
+			return new Vector3(point.X / -point.Z,
+			                   point.Y / -point.Z,
+			                   -point.Z);
+		}
+
+		public Vector2 ScreenToRaster(float canvasWidth, float canvasHeight, Vector3 screen)
+		{
+			Vector3 ndc = ScreenToNdc(canvasWidth, canvasHeight, screen);
 			return NdcToRaster(ndc);
 		}
 
-		public Vector2 CameraToScreen(Vector3 point)
+		public Vector3 ScreenToNdc(float canvasWidth, float canvasHeight, Vector3 screen)
 		{
-			return new Vector2(point.X / -point.Z,
-			                   point.Y / -point.Z);
+			return new Vector3((screen.X + canvasWidth / 2.0f) / canvasWidth,
+			                   (screen.Y + canvasHeight / 2.0f) / canvasHeight,
+			                   screen.Z);
 		}
 
-		public Vector2 ScreenToNdc(Vector2 screen)
-		{
-			float canvasWidth = 2.7f;
-			float canvasHeight = 2.7f;
-
-			return new Vector2((screen.X + canvasWidth / 2.0f) / canvasWidth,
-			                   (screen.Y + canvasHeight / 2.0f) / canvasHeight);
-		}
-
-		public Vector2 NdcToRaster(Vector2 ndc)
+		public Vector2 NdcToRaster(Vector3 ndc)
 		{
 			return new Vector2(ndc.X * Bounds.Width,
-							   (1 - ndc.Y) * Bounds.Height);
-		}
-
-		public void Clear()
-		{
-			Array.Clear(Pixels, 0, Pixels.Length);
+			                   (1 - ndc.Y) * Bounds.Height);
 		}
 	}
 }

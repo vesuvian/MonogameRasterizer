@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using MonogameRasterizer.Extensions;
+using MonogameRasterizer.Utils;
 
 namespace MonogameRasterizer.Actors
 {
@@ -13,6 +14,10 @@ namespace MonogameRasterizer.Actors
 
 		public float AspectRatio { get; set; }
 
+		public float CanvasWidth { get; set; }
+
+		public float CanvasHeight { get; set; }
+
 		public Matrix Projection
 		{
 			get { return Matrix.CreatePerspectiveFieldOfView(FovRadians, AspectRatio, NearClipPlane, FarClipPlane); }
@@ -24,13 +29,20 @@ namespace MonogameRasterizer.Actors
 			FarClipPlane = 200.0f;
 			FovRadians = MathHelper.PiOver4;
 			AspectRatio = 1.0f;
+			CanvasWidth = 2.7f;
+			CanvasHeight = 2.7f;
+		}
+
+		public void SetAspectRatio(Rectangle bufferBounds)
+		{
+			AspectRatio = (float)bufferBounds.Width / bufferBounds.Height;
 		}
 
 		public void Render(Buffer buffer, GameTime gameTime, Scene scene)
 		{
 			Matrix worldToCanvas = Transform.Matrix.Inverse() * Projection;
 
-			DrawGrid(buffer, worldToCanvas);
+			//DrawGrid(buffer, worldToCanvas);
 			DrawAxis(buffer, worldToCanvas);
 
 			foreach (MeshActor item in scene.Geometry)
@@ -66,17 +78,6 @@ namespace MonogameRasterizer.Actors
 			DrawLine(buffer, worldToCanvas, Vector3.Zero, Vector3.Forward, Color.Blue);
 		}
 
-		private void DrawLine(Buffer buffer, Matrix worldToCanvas, Vector3 worldA, Vector3 worldB, Color color)
-		{
-			Vector3 canvasA = Vector3.Transform(worldA, worldToCanvas);
-			Vector3 canvasB = Vector3.Transform(worldB, worldToCanvas);
-
-			Vector2 rasterA = buffer.CameraToRaster(canvasA);
-			Vector2 rasterB = buffer.CameraToRaster(canvasB);
-
-			buffer.DrawLine(rasterA, rasterB, color);
-		}
-
 		private void RenderGeometry(Buffer buffer, Matrix worldToCanvas, MeshActor geometry)
 		{
 			foreach (Triangle triangle in geometry.Mesh.GetTriangles())
@@ -93,9 +94,24 @@ namespace MonogameRasterizer.Actors
 			}
 		}
 
-		public void SetAspectRatio(Rectangle bufferBounds)
+		private void DrawLine(Buffer buffer, Matrix worldToCanvas, Vector3 worldA, Vector3 worldB, Color color)
 		{
-			AspectRatio = (float)bufferBounds.Width / bufferBounds.Height;
+			Vector3 canvasA = Vector3.Transform(worldA, worldToCanvas);
+			Vector3 canvasB = Vector3.Transform(worldB, worldToCanvas);
+
+			Vector3 screenA = buffer.CanvasToScreen(canvasA);
+			Vector3 screenB = buffer.CanvasToScreen(canvasB);
+
+			BoundingBox extents = new BoundingBox(new Vector3(CanvasWidth / -2.0f, CanvasWidth / -2.0f, NearClipPlane),
+			                                      new Vector3(CanvasWidth / 2.0f, CanvasWidth / 2.0f, FarClipPlane));
+
+			if (!ClippingUtils.CohenSutherlandLineClip(extents, ref screenA, ref screenB))
+				return;
+
+			Vector2 rasterA = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenA);
+			Vector2 rasterB = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenB);
+
+			buffer.DrawLine(rasterA, rasterB, color);
 		}
 	}
 }
