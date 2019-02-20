@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonogameRasterizer", "MonogameRasterizer\MonogameRasterizer.csproj", "{1F57712E-CE44-49F4-83B8-FB33CEB7FF23}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonogameRasterizerTests", "MonogameRasterizerTests\MonogameRasterizerTests.csproj", "{42669D28-78F5-49C5-A35D-0C94D03E920E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1F57712E-CE44-49F4-83B8-FB33CEB7FF23}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F57712E-CE44-49F4-83B8-FB33CEB7FF23}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F57712E-CE44-49F4-83B8-FB33CEB7FF23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42669D28-78F5-49C5-A35D-0C94D03E920E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42669D28-78F5-49C5-A35D-0C94D03E920E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42669D28-78F5-49C5-A35D-0C94D03E920E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42669D28-78F5-49C5-A35D-0C94D03E920E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
