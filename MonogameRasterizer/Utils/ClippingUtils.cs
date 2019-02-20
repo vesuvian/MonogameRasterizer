@@ -74,7 +74,7 @@ namespace MonogameRasterizer.Utils
 
 				// failed both tests, so calculate the line segment to clip
 				// from an outside point to an intersection with clip edge
-				float x, y, z;
+				double x, y, z;
 
 				// At least one endpoint is outside the clip rectangle; pick it.
 				eCohenSutherlandCode outcodeOut = outcode0 == eCohenSutherlandCode.Inside ? outcode1 : outcode0;
@@ -127,12 +127,12 @@ namespace MonogameRasterizer.Utils
 				// and get ready for next pass.
 				if (outcodeOut == outcode0)
 				{
-					p0 = new Vector3(x, y, z);
+					p0 = new Vector3((float)x, (float)y, (float)z);
 					outcode0 = CohenSutherlandOutCode(extents, p0);
 				}
 				else
 				{
-					p1 = new Vector3(x, y, z);
+					p1 = new Vector3((float)x, (float)y, (float)z);
 					outcode1 = CohenSutherlandOutCode(extents, p1);
 				}
 			}
