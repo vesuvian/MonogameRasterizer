@@ -28,6 +28,7 @@
 *.sdf
 ipch/
 obj/
+.vs/
 [Bb]in
 [Dd]ebug*/
 [Rr]elease*/
