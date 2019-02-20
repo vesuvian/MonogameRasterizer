@@ -101,8 +101,8 @@ namespace MonogameRasterizer.Actors
 			if (!ClippingUtils.CohenSutherlandLineClip(extents, ref canvasA, ref canvasB))
 				return;
 
-			Vector3 screenA = buffer.CanvasToScreen(canvasA);
-			Vector3 screenB = buffer.CanvasToScreen(canvasB);
+			Vector2 screenA = buffer.CanvasToScreen(canvasA);
+			Vector2 screenB = buffer.CanvasToScreen(canvasB);
 
 			Vector2 rasterA = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenA);
 			Vector2 rasterB = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenB);
