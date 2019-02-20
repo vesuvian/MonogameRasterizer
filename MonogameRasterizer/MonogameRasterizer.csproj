@@ -60,6 +60,7 @@
     <Compile Include="Utils\ClippingUtils.cs" />
     <Compile Include="Utils\MatrixUtils.cs" />
     <Compile Include="Utils\QuaternionUtils.cs" />
+    <Compile Include="Utils\VectorUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

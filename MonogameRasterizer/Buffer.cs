@@ -66,12 +66,6 @@ namespace MonogameRasterizer
 			Pixels[index] = color.PackedValue;
 		}
 
-		public Vector3 CanvasToNdc(float canvasWidth, float canvasHeight, Vector3 point)
-		{
-			Vector3 screen = CanvasToScreen(point);
-			return ScreenToNdc(canvasWidth, canvasHeight, screen);
-		}
-
 		public Vector3 CanvasToScreen(Vector3 point)
 		{
 			return new Vector3(point.X / -point.Z,
@@ -81,18 +75,17 @@ namespace MonogameRasterizer
 
 		public Vector2 ScreenToRaster(float canvasWidth, float canvasHeight, Vector3 screen)
 		{
-			Vector3 ndc = ScreenToNdc(canvasWidth, canvasHeight, screen);
+			Vector2 ndc = ScreenToNdc(canvasWidth, canvasHeight, screen);
 			return NdcToRaster(ndc);
 		}
 
-		public Vector3 ScreenToNdc(float canvasWidth, float canvasHeight, Vector3 screen)
+		public Vector2 ScreenToNdc(float canvasWidth, float canvasHeight, Vector3 screen)
 		{
-			return new Vector3((screen.X + canvasWidth / 2.0f) / canvasWidth,
-			                   (screen.Y + canvasHeight / 2.0f) / canvasHeight,
-			                   screen.Z);
+			return new Vector2((screen.X + canvasWidth / 2.0f) / canvasWidth,
+			                   (screen.Y + canvasHeight / 2.0f) / canvasHeight);
 		}
 
-		public Vector2 NdcToRaster(Vector3 ndc)
+		public Vector2 NdcToRaster(Vector2 ndc)
 		{
 			return new Vector2(ndc.X * Bounds.Width,
 			                   (1 - ndc.Y) * Bounds.Height);

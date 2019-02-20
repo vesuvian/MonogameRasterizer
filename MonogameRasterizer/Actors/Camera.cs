@@ -27,10 +27,10 @@ namespace MonogameRasterizer.Actors
 		{
 			NearClipPlane = 1.0f;
 			FarClipPlane = 200.0f;
-			FovRadians = MathHelper.PiOver4;
+			FovRadians = MathHelper.PiOver2;
 			AspectRatio = 1.0f;
-			CanvasWidth = 2.7f;
-			CanvasHeight = 2.7f;
+			CanvasWidth = 1.0f;
+			CanvasHeight = 1.0f;
 		}
 
 		public void SetAspectRatio(Rectangle bufferBounds)
@@ -42,7 +42,7 @@ namespace MonogameRasterizer.Actors
 		{
 			Matrix worldToCanvas = Transform.Matrix.Inverse() * Projection;
 
-			//DrawGrid(buffer, worldToCanvas);
+			DrawGrid(buffer, worldToCanvas);
 			DrawAxis(buffer, worldToCanvas);
 
 			foreach (MeshActor item in scene.Geometry)
@@ -92,17 +92,17 @@ namespace MonogameRasterizer.Actors
 
 		private void DrawLine(Buffer buffer, Matrix worldToCanvas, Vector3 worldA, Vector3 worldB, Color color)
 		{
-			Vector3 canvasA = Vector3.Transform(worldA, worldToCanvas);
-			Vector3 canvasB = Vector3.Transform(worldB, worldToCanvas);
+			Vector3 canvasA = VectorUtils.MultiplyPointMatrix(worldA, worldToCanvas);
+			Vector3 canvasB = VectorUtils.MultiplyPointMatrix(worldB, worldToCanvas);
+
+			BoundingBox extents = new BoundingBox(new Vector3(-1.0f, -1.0f, NearClipPlane),
+			                                      new Vector3(1.0f, 1.0f, FarClipPlane));
+
+			if (!ClippingUtils.CohenSutherlandLineClip(extents, ref canvasA, ref canvasB))
+				return;
 
 			Vector3 screenA = buffer.CanvasToScreen(canvasA);
 			Vector3 screenB = buffer.CanvasToScreen(canvasB);
-
-			BoundingBox extents = new BoundingBox(new Vector3(CanvasWidth / -2.0f, CanvasWidth / -2.0f, NearClipPlane),
-			                                      new Vector3(CanvasWidth / 2.0f, CanvasWidth / 2.0f, FarClipPlane));
-
-			if (!ClippingUtils.CohenSutherlandLineClip(extents, ref screenA, ref screenB))
-				return;
 
 			Vector2 rasterA = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenA);
 			Vector2 rasterB = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenB);
