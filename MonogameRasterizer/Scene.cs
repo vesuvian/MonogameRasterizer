@@ -64,10 +64,10 @@ namespace MonogameRasterizer
 				move += Vector3.Down;
 
 			if (keyState.IsKeyDown(Keys.W))
-				move += Vector3.Forward;
+				move += Vector3.Backward;
 
 			if (keyState.IsKeyDown(Keys.S))
-				move += Vector3.Backward;
+				move += Vector3.Forward;
 
 			if (keyState.IsKeyDown(Keys.A))
 				move += Vector3.Left;
@@ -75,6 +75,7 @@ namespace MonogameRasterizer
 			if (keyState.IsKeyDown(Keys.D))
 				move += Vector3.Right;
 
+			move = Vector3.Transform(move, m_Camera.Transform.Rotation);
 			move *= (float)gameTime.ElapsedGameTime.TotalSeconds;
 
 			m_Camera.Transform.Position += move;

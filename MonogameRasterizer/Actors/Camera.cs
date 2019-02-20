@@ -18,11 +18,6 @@ namespace MonogameRasterizer.Actors
 
 		public float CanvasHeight { get; set; }
 
-		public Vector3 Forward
-		{
-			get { return -Transform.Forward; }
-		}
-
 		public Matrix Projection
 		{
 			get { return Matrix.CreatePerspectiveFieldOfView(FovRadians, AspectRatio, NearClipPlane, FarClipPlane); }
