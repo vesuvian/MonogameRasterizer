@@ -102,7 +102,7 @@ namespace MonogameRasterizerTests.Utils
 				new Plane(Vector3.Up, 0.5f)
 			};
 
-			List<Vector3> verts;// = ClippingUtils.SutherlandHodgmanPolygonClip(polygon.Vertices, planes).ToList();
+			List<Vector3> verts = ClippingUtils.SutherlandHodgmanPolygonClip(polygon.Vertices, planes).ToList();
 
 			List<Vector3> expected = new List<Vector3>
 			{
@@ -111,7 +111,7 @@ namespace MonogameRasterizerTests.Utils
 				new Vector3(0.5f, 0.5f, 0.0f)
 			};
 
-			//CollectionAssert.AreEqual(expected, verts);
+			CollectionAssert.AreEqual(expected, verts);
 
 			// Harder case
 			planes = new List<Plane>

@@ -171,13 +171,16 @@ namespace MonogameRasterizer.Utils
 
 			// Line and plane are parallel
 			float dotDenominator = Vector3.Dot(direction, plane.Normal);
-			if (dotDenominator == 0.0f)
+			if (Math.Abs(dotDenominator) < 0.00001f)
 				return false;
 
 			float dotNumerator = -plane.Distance(start);
 			float length = dotNumerator / dotDenominator;
 
-			intersection = start + direction * length;
+			intersection = start;
+
+			if (Math.Abs(length) > 0.00001f)
+				intersection += direction * length;
 
 			return true;
 		}
@@ -229,14 +232,19 @@ namespace MonogameRasterizer.Utils
 						{
 							Vector3 intersection;
 							PlaneVectorClip(clippingPlane, a, Vector3.Normalize(b - a), out intersection);
-							clipped.Add(intersection);
+
+							if (intersection != a)
+								clipped.Add(intersection);
 						}
 					}
 					else if (bInFront)
 					{
 						Vector3 intersection;
 						PlaneVectorClip(clippingPlane, a, Vector3.Normalize(b - a), out intersection);
-						clipped.Add(intersection);
+
+						if (intersection != b)
+							clipped.Add(intersection);
+
 						clipped.Add(b);
 					}
 				}
