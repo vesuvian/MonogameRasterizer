@@ -174,7 +174,7 @@ namespace MonogameRasterizer.Utils
 			if (dotDenominator == 0.0f)
 				return false;
 
-			float dotNumerator = -Vector3.Dot(start, plane.Normal) - plane.D;
+			float dotNumerator = -plane.Distance(start);
 			float length = dotNumerator / dotDenominator;
 
 			intersection = start + direction * length;

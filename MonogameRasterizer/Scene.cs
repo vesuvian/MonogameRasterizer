@@ -22,7 +22,7 @@ namespace MonogameRasterizer
 			MeshActor origin = new MeshActor { Mesh = Primitives.Cube() };
 
 			MeshActor forward = new MeshActor { Mesh = Primitives.Cube() };
-			forward.Transform.Position += Vector3.Forward * 1f;
+			forward.Transform.Position += Vector3.Backward * 1f;
 
 			MeshActor right = new MeshActor { Mesh = Primitives.Cube() };
 			right.Transform.Position += Vector3.Right * 1f;

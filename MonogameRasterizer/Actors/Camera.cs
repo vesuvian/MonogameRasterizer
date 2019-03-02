@@ -42,18 +42,19 @@ namespace MonogameRasterizer.Actors
 		public IEnumerable<Plane> GetLocalFrustumPlanes()
 		{
 			// Near and far
-			yield return new Plane(new Vector3(0, 0, NearClipPlane), Vector3.Backward);
-			yield return new Plane(new Vector3(0, 0, FarClipPlane), Vector3.Forward);
+			yield return new Plane(Vector3.Backward, NearClipPlane);
+			yield return new Plane(Vector3.Forward, -FarClipPlane);
 
 			// Left and right
 			float halfFov = FovRadians / 2.0f;
 			Quaternion yaw = Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(90.0f) - halfFov, 0.0f, 0.0f);
 
+			// TODO - Some over-clipping close to the camera?
 			yield return new Plane(Vector3.Zero, Vector3.Transform(Vector3.Backward, yaw));
 			yield return new Plane(Vector3.Zero, Vector3.Transform(Vector3.Backward, Quaternion.Inverse(yaw)));
 
 			// Top and bottom
-			halfFov /= AspectRatio;
+			//halfFov /= AspectRatio; // TODO - Correct for aspect ratio
 			Quaternion pitch = Quaternion.CreateFromYawPitchRoll(0.0f, MathHelper.ToRadians(90.0f) - halfFov, 0.0f);
 
 			yield return new Plane(Vector3.Zero, Vector3.Transform(Vector3.Backward, pitch));
@@ -95,7 +96,7 @@ namespace MonogameRasterizer.Actors
 		{
 			DrawLine(buffer, Vector3.Zero, Vector3.Right, Color.Red);
 			DrawLine(buffer, Vector3.Zero, Vector3.Up, Color.Green);
-			DrawLine(buffer, Vector3.Zero, Vector3.Forward, Color.Blue);
+			DrawLine(buffer, Vector3.Zero, Vector3.Backward, Color.Blue);
 		}
 
 		private void DrawWireframe(Buffer buffer, MeshActor geometry)
