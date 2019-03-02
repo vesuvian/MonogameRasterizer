@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using MonogameRasterizer.Extensions;
 
@@ -165,7 +167,7 @@ namespace MonogameRasterizer.Utils
 
 		public static bool PlaneVectorClip(Plane plane, Vector3 start, Vector3 direction, out Vector3 intersection)
 		{
-			intersection = Vector3.Zero;
+			intersection = start;
 
 			// Line and plane are parallel
 			float dotDenominator = Vector3.Dot(direction, plane.Normal);
@@ -178,6 +180,62 @@ namespace MonogameRasterizer.Utils
 			intersection = start + direction * length;
 
 			return true;
+		}
+
+		/// <summary>
+		/// Clips the given triangle polygon against the given clipping planes.
+		/// </summary>
+		/// <param name="startingPolygon"></param>
+		/// <param name="clippingPlanes"></param>
+		/// <returns></returns>
+		public static IEnumerable<Vector3> SutherlandHodgmanPolygonClip(IEnumerable<Vector3> startingPolygon, IEnumerable<Plane> clippingPlanes)
+		{
+			List<Vector3> verts = startingPolygon.ToList();
+
+			foreach (Plane clippingPlane in clippingPlanes)
+			{
+				if (verts.Count == 0)
+					break;
+
+				List<Vector3> input = verts.ToList();
+				verts.Clear();
+
+				Vector3 startingPoint = input.Last();
+
+				foreach (Vector3 current in input)
+				{
+					bool startInFront = clippingPlane.IsInFrontOrAdjacent(startingPoint);
+					bool currentInFront = clippingPlane.IsInFrontOrAdjacent(current);
+					
+					// Current in front
+					if (currentInFront)
+					{
+						// Start behind
+						if (!startInFront)
+						{
+							Vector3 intersection;
+							PlaneVectorClip(clippingPlane, startingPoint, Vector3.Normalize(current - startingPoint), out intersection);
+							verts.Add(intersection);
+						}
+
+						verts.Add(current);
+						continue;
+					}
+
+					// Start in front, current behind
+					if (startInFront)
+					{
+						Vector3 intersection;
+						PlaneVectorClip(clippingPlane, startingPoint, Vector3.Normalize(current - startingPoint), out intersection);
+						verts.Add(intersection);
+						continue;
+					}
+
+					startingPoint = current;
+				}
+			}
+
+			return verts;
 		}
 	}
 }

@@ -8,5 +8,15 @@ namespace MonogameRasterizer.Extensions
 		{
 			return Vector3.Dot(point, extends.Normal) + extends.D > 0.0f;
 		}
+
+		public static bool IsInFrontOrAdjacent(this Plane extends, Vector3 point)
+		{
+			return Vector3.Dot(point, extends.Normal) + extends.D >= 0.0f;
+		}
+
+		public static bool IsBehind(this Plane extends, Vector3 point)
+		{
+			return Vector3.Dot(point, extends.Normal) + extends.D < 0.0f;
+		}
 	}
 }

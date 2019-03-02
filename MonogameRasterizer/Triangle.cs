@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace MonogameRasterizer
 {
-	public struct Triangle
+	public struct Triangle : IEnumerable<Vector3>
 	{
 		public Vector3 A { get; set; }
 
@@ -26,6 +27,13 @@ namespace MonogameRasterizer
 			get { return (A + B + C) / 3.0f; }
 		}
 
+		public Triangle(Vector3 a, Vector3 b, Vector3 c)
+		{
+			A = a;
+			B = b;
+			C = c;
+		}
+
 		public Triangle Transform(Matrix transform)
 		{
 			return new Triangle
@@ -34,6 +42,16 @@ namespace MonogameRasterizer
 				B = Vector3.Transform(B, transform),
 				C = Vector3.Transform(C, transform)
 			};
+		}
+
+		public IEnumerator<Vector3> GetEnumerator()
+		{
+			return Vertices.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 }
