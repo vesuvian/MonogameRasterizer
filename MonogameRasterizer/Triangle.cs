@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using MonogameRasterizer.Utils;
 
 namespace MonogameRasterizer
 {
@@ -38,9 +39,9 @@ namespace MonogameRasterizer
 		{
 			return new Triangle
 			{
-				A = Vector3.Transform(A, transform),
-				B = Vector3.Transform(B, transform),
-				C = Vector3.Transform(C, transform)
+				A = VectorUtils.MultiplyPointMatrix(A, transform),
+				B = VectorUtils.MultiplyPointMatrix(B, transform),
+				C = VectorUtils.MultiplyPointMatrix(C, transform)
 			};
 		}
 
@@ -52,6 +53,42 @@ namespace MonogameRasterizer
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
+		}
+
+		/// <summary>
+		/// Returns a new triangle with the same points such that A is the topmost vertex and C is the bottom.
+		/// </summary>
+		/// <param name="triangle"></param>
+		/// <returns></returns>
+		public static Triangle SortVertexIndexingByY(Triangle triangle)
+		{
+			// A comes before B
+			if (triangle.A.Y <= triangle.B.Y)
+			{
+				// ABC
+				if (triangle.B.Y <= triangle.C.Y)
+					return triangle;
+
+				// CAB
+				if (triangle.C.Y <= triangle.A.Y)
+					return new Triangle(triangle.C, triangle.A, triangle.B);
+
+				// ACB
+				return new Triangle(triangle.A, triangle.C, triangle.B);
+			}
+
+			// A comes after B and before C
+			if (triangle.A.Y <= triangle.C.Y)
+				// BAC
+				return new Triangle(triangle.B, triangle.A, triangle.C);
+
+			// A comes last
+			// BCA
+			if (triangle.B.Y <= triangle.C.Y)
+				return new Triangle(triangle.B, triangle.C, triangle.A);
+
+			// CBA
+			return new Triangle(triangle.C, triangle.B, triangle.A);
 		}
 	}
 }

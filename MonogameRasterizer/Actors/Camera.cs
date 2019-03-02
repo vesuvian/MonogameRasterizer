@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using MonogameRasterizer.Extensions;
 using MonogameRasterizer.Utils;
@@ -47,6 +48,8 @@ namespace MonogameRasterizer.Actors
 
 			// Left and right
 			float halfFov = FovRadians / 2.0f;
+			halfFov -= MathHelper.ToRadians(5.0f);
+
 			Quaternion yaw = Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(90.0f) - halfFov, 0.0f, 0.0f);
 
 			// TODO - Some over-clipping close to the camera?
@@ -54,13 +57,18 @@ namespace MonogameRasterizer.Actors
 			yield return new Plane(Vector3.Zero, Vector3.Transform(Vector3.Backward, Quaternion.Inverse(yaw)));
 
 			// Top and bottom
-			//halfFov /= AspectRatio; // TODO - Correct for aspect ratio
+			halfFov /= AspectRatio; // TODO - Correct for aspect ratio
 			Quaternion pitch = Quaternion.CreateFromYawPitchRoll(0.0f, MathHelper.ToRadians(90.0f) - halfFov, 0.0f);
 
 			yield return new Plane(Vector3.Zero, Vector3.Transform(Vector3.Backward, pitch));
 			yield return new Plane(Vector3.Zero, Vector3.Transform(Vector3.Backward, Quaternion.Inverse(pitch)));
 		}
-		
+
+		public IEnumerable<Plane> GetWorldFrustumPlanes()
+		{
+			return GetLocalFrustumPlanes().Select(p => Plane.Transform(p, Transform.Matrix.Inverse()));
+		}
+
 		public void Render(Buffer buffer, GameTime gameTime, Scene scene)
 		{
 			DrawGrid(buffer);
@@ -105,10 +113,24 @@ namespace MonogameRasterizer.Actors
 			{
 				Triangle world = triangle.Transform(geometry.Transform.Matrix);
 
-				DrawLine(buffer, world.A, world.B, Color.Red);
-				DrawLine(buffer, world.B, world.C, Color.Red);
-				DrawLine(buffer, world.C, world.A, Color.Red);
+				// Temp
+				foreach (Triangle t in ClippingUtils.SutherlandHodgmanPolygonClip(world, GetWorldFrustumPlanes()))
+					DrawFilledTriangle(buffer, t, Color.Red);
+
+				DrawLine(buffer, world.A, world.B, Color.Black);
+				DrawLine(buffer, world.B, world.C, Color.Black);
+				DrawLine(buffer, world.C, world.A, Color.Black);
 			}
+		}
+
+		private void DrawFilledTriangle(Buffer buffer, Triangle world, Color color)
+		{
+			Triangle camera = world.Transform(Transform.Matrix.Inverse());
+			Triangle canvas = camera.Transform(Projection);
+			Triangle screen = buffer.CanvasToScreen(canvas);
+			Triangle raster = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screen);
+
+			buffer.DrawFilledTriangle(raster, color);
 		}
 
 		private void DrawLine(Buffer buffer, Vector3 worldA, Vector3 worldB, Color color)
@@ -123,11 +145,11 @@ namespace MonogameRasterizer.Actors
 			Vector3 canvasA = VectorUtils.MultiplyPointMatrix(cameraA, Projection);
 			Vector3 canvasB = VectorUtils.MultiplyPointMatrix(cameraB, Projection);
 
-			Vector2 screenA = buffer.CanvasToScreen(canvasA);
-			Vector2 screenB = buffer.CanvasToScreen(canvasB);
+			Vector3 screenA = buffer.CanvasToScreen(canvasA);
+			Vector3 screenB = buffer.CanvasToScreen(canvasB);
 
-			Vector2 rasterA = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenA);
-			Vector2 rasterB = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenB);
+			Vector3 rasterA = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenA);
+			Vector3 rasterB = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenB);
 
 			buffer.DrawLine(rasterA, rasterB, color);
 		}
