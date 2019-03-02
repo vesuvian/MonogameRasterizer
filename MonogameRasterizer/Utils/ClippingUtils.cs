@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using MonogameRasterizer.Extensions;
 
 namespace MonogameRasterizer.Utils
 {
@@ -18,9 +19,7 @@ namespace MonogameRasterizer.Utils
 		}
 
 		/// <summary>
-		/// Compute the bit code for a point (x, y) using the clip rectangle
-		/// bounded diagonally by (xmin, ymin), and (xmax, ymax)
-		/// ASSUME THAT xmax , xmin , ymax and ymin are global constants.
+		/// Compute the bit code for a point against the given bounding box.
 		/// </summary>
 		/// <param name="extents"></param>
 		/// <param name="point"></param>
@@ -48,14 +47,12 @@ namespace MonogameRasterizer.Utils
 		}
 
 		/// <summary>
-		/// Cohen–Sutherland clipping algorithm clips a line from
-		/// P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with
-		/// diagonal from (xmin, ymin) to (xmax, ymax).
+		/// Clips the line p0 to p1, modifying the points so they fit within the given bounding box.
 		/// </summary>
 		/// <param name="extents"></param>
 		/// <param name="p0"></param>
 		/// <param name="p1"></param>
-		/// <returns>a list of two points in the resulting clipped line, or zero</returns>
+		/// <returns>True if the line passes through the bounding box.</returns>
 		public static bool CohenSutherlandLineClip(BoundingBox extents, ref Vector3 p0, ref Vector3 p1)
 		{
 			// Compute outcodes for P0, P1, and whatever point lies outside the clip rectangle
@@ -136,6 +133,51 @@ namespace MonogameRasterizer.Utils
 					outcode1 = CohenSutherlandOutCode(extents, p1);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Clips the line p0 to p1, modifying the points so they fit in front of the plane.
+		/// </summary>
+		/// <param name="plane"></param>
+		/// <param name="p0"></param>
+		/// <param name="p1"></param>
+		/// <returns>True if the line passes through the front of the plane.</returns>
+		public static bool PlaneLineClip(Plane plane, ref Vector3 p0, ref Vector3 p1)
+		{
+			bool p0InFront = plane.IsInFront(p0);
+			bool p1InFront = plane.IsInFront(p1);
+
+			// Both points in front or behind plane
+			if (!(p0InFront ^ p1InFront))
+				return p0InFront;
+
+			if (p0InFront)
+			{
+				Vector3 direction = Vector3.Normalize(p1 - p0);
+				return PlaneVectorClip(plane, p0, direction, out p1);
+			}
+			else
+			{
+				Vector3 direction = Vector3.Normalize(p0 - p1);
+				return PlaneVectorClip(plane, p1, direction, out p0);
+			}
+		}
+
+		public static bool PlaneVectorClip(Plane plane, Vector3 start, Vector3 direction, out Vector3 intersection)
+		{
+			intersection = Vector3.Zero;
+
+			// Line and plane are parallel
+			float dotDenominator = Vector3.Dot(direction, plane.Normal);
+			if (dotDenominator == 0.0f)
+				return false;
+
+			float dotNumerator = -Vector3.Dot(start, plane.Normal) - plane.D;
+			float length = dotNumerator / dotDenominator;
+
+			intersection = start + direction * length;
+
+			return true;
 		}
 	}
 }

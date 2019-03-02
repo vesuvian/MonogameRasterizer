@@ -51,6 +51,7 @@
     <Compile Include="Actors\Transform.cs" />
     <Compile Include="Buffer.cs" />
     <Compile Include="Extensions\MatrixExtensions.cs" />
+    <Compile Include="Extensions\PlaneExtensions.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Primitives.cs" />
     <Compile Include="Program.cs" />
