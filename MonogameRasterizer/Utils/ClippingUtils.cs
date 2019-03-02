@@ -184,58 +184,95 @@ namespace MonogameRasterizer.Utils
 
 		/// <summary>
 		/// Clips the given triangle polygon against the given clipping planes.
+		/// Returns a fanned triangle mesh for the resulting polygon.
 		/// </summary>
-		/// <param name="startingPolygon"></param>
+		/// <param name="polygon"></param>
 		/// <param name="clippingPlanes"></param>
 		/// <returns></returns>
-		public static IEnumerable<Vector3> SutherlandHodgmanPolygonClip(IEnumerable<Vector3> startingPolygon, IEnumerable<Plane> clippingPlanes)
+		public static IEnumerable<Triangle> SutherlandHodgmanPolygonClip(Triangle polygon, IEnumerable<Plane> clippingPlanes)
 		{
-			List<Vector3> verts = startingPolygon.ToList();
+			IEnumerable<Vector3> verts = SutherlandHodgmanPolygonClip(polygon.Vertices, clippingPlanes);
+			return BuildConvexTriangleFan(verts);
+		}
+
+		/// <summary>
+		/// Clips the given polygon against the given clipping planes.
+		/// </summary>
+		/// <param name="polygon"></param>
+		/// <param name="clippingPlanes"></param>
+		/// <returns></returns>
+		public static IEnumerable<Vector3> SutherlandHodgmanPolygonClip(IEnumerable<Vector3> polygon, IEnumerable<Plane> clippingPlanes)
+		{
+			List<Vector3> clipped = polygon.ToList();
 
 			foreach (Plane clippingPlane in clippingPlanes)
 			{
-				if (verts.Count == 0)
+				if (clipped.Count == 0)
 					break;
 
-				List<Vector3> input = verts.ToList();
-				verts.Clear();
+				List<Vector3> input = clipped;
+				clipped = new List<Vector3>();
 
-				Vector3 startingPoint = input.Last();
-
-				foreach (Vector3 current in input)
+				for (int index = 0; index < input.Count; index++)
 				{
-					bool startInFront = clippingPlane.IsInFrontOrAdjacent(startingPoint);
-					bool currentInFront = clippingPlane.IsInFrontOrAdjacent(current);
+					Vector3 a = input[index];
+					Vector3 b = input[(index + 1) % input.Count];
+
+					bool aInFront = !clippingPlane.IsBehind(a);
+					bool bInFront = !clippingPlane.IsBehind(b);
 					
-					// Current in front
-					if (currentInFront)
+					if (aInFront)
 					{
-						// Start behind
-						if (!startInFront)
+						if (bInFront)
+							clipped.Add(b);
+						else
 						{
 							Vector3 intersection;
-							PlaneVectorClip(clippingPlane, startingPoint, Vector3.Normalize(current - startingPoint), out intersection);
-							verts.Add(intersection);
+							PlaneVectorClip(clippingPlane, a, Vector3.Normalize(b - a), out intersection);
+							clipped.Add(intersection);
 						}
-
-						verts.Add(current);
-						continue;
 					}
-
-					// Start in front, current behind
-					if (startInFront)
+					else if (bInFront)
 					{
 						Vector3 intersection;
-						PlaneVectorClip(clippingPlane, startingPoint, Vector3.Normalize(current - startingPoint), out intersection);
-						verts.Add(intersection);
-						continue;
+						PlaneVectorClip(clippingPlane, a, Vector3.Normalize(b - a), out intersection);
+						clipped.Add(intersection);
+						clipped.Add(b);
 					}
-
-					startingPoint = current;
 				}
 			}
 
-			return verts;
+			return clipped;
+		}
+
+		/// <summary>
+		/// Given a convex shape defined by the given sequence of vertices, returns a contiguous triangle fan. 
+		/// </summary>
+		/// <param name="verts"></param>
+		/// <returns></returns>
+		private static IEnumerable<Triangle> BuildConvexTriangleFan(IEnumerable<Vector3> verts)
+		{
+			Vector3 a = Vector3.Zero;
+			Vector3 b = Vector3.Zero;
+			Vector3 c = Vector3.Zero;
+
+			int index = 0;
+
+			foreach (Vector3 vert in verts)
+			{
+				if (index == 0)
+					a = vert;
+
+				if (index % 2 == 0)
+					c = vert;
+				else
+					b = vert;
+
+				if (index >= 2)
+					yield return new Triangle(a, b, c);
+
+				index++;
+			}
 		}
 	}
 }

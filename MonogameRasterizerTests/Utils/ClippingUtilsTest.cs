@@ -79,31 +79,60 @@ namespace MonogameRasterizerTests.Utils
 		}
 
 		[Test]
+		public static void PlaneVectorClipTest()
+		{
+			Vector3 start = Vector3.Zero;
+			Vector3 direction = Vector3.Up;
+			Plane clippingPlane = new Plane(Vector3.Up, 0.5f);
+
+			Vector3 intersection;
+			ClippingUtils.PlaneVectorClip(clippingPlane, start, direction, out intersection);
+
+			Assert.AreEqual(Vector3.Up / 2.0f, intersection);
+		}
+
+		[Test]
 		public static void SutherlandHodgmanPolygonClipTest()
 		{
+			// Simple case
 			Triangle polygon = new Triangle(Vector3.Zero, Vector3.Up, Vector3.Right);
 
 			List<Plane> planes = new List<Plane>
 			{
-				new Plane(Vector3.Up, 0.0f),
-				new Plane(Vector3.Right, 0.0f),
-				new Plane(Vector3.Down, 0.5f),
-				new Plane(Vector3.Left, 0.5f)
+				new Plane(Vector3.Up, 0.5f)
 			};
 
-			List<Vector3> verts = ClippingUtils.SutherlandHodgmanPolygonClip(polygon, planes).ToList();
+			List<Vector3> verts;// = ClippingUtils.SutherlandHodgmanPolygonClip(polygon.Vertices, planes).ToList();
 
 			List<Vector3> expected = new List<Vector3>
 			{
-				new Vector3(0.0f, 0.0f, 0.0f),
+				new Vector3(0.0f, 0.5f, 0.0f),
+				new Vector3(0.0f, 1.0f, 0.0f),
+				new Vector3(0.5f, 0.5f, 0.0f)
+			};
+
+			//CollectionAssert.AreEqual(expected, verts);
+
+			// Harder case
+			planes = new List<Plane>
+			{
+				new Plane(Vector3.Up, 0.0f),
+				new Plane(Vector3.Right, 0.0f),
+				new Plane(Vector3.Down, -0.5f),
+				new Plane(Vector3.Left, -0.5f)
+			};
+
+			verts = ClippingUtils.SutherlandHodgmanPolygonClip(polygon.Vertices, planes).ToList();
+
+			expected = new List<Vector3>
+			{
 				new Vector3(0.0f, 0.5f, 0.0f),
 				new Vector3(0.5f, 0.5f, 0.0f),
 				new Vector3(0.5f, 0.0f, 0.0f),
+				new Vector3(0.0f, 0.0f, 0.0f),
 			};
 
-			//Assert.IsTrue(verts.SequenceEqual(expected));
-
-			Assert.Inconclusive();
+			CollectionAssert.AreEqual(expected, verts);
 		}
 	}
 }
