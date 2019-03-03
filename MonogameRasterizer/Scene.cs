@@ -47,7 +47,7 @@ namespace MonogameRasterizer
 		{
 			foreach (var item in Geometry)
 			{
-				item.Transform.Scale = Vector3.One * (float)Math.Cos(gameTime.TotalGameTime.TotalSeconds);
+				item.Transform.Scale = Vector3.One * (float)Math.Abs(Math.Cos(gameTime.TotalGameTime.TotalSeconds));
 				item.Transform.Rotation *= Quaternion.CreateFromYawPitchRoll((float)gameTime.ElapsedGameTime.TotalSeconds,
 				                                                             (float)gameTime.ElapsedGameTime.TotalSeconds,
 				                                                             (float)gameTime.ElapsedGameTime.TotalSeconds);
