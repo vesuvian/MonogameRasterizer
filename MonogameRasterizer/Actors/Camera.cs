@@ -113,6 +113,10 @@ namespace MonogameRasterizer.Actors
 			{
 				Triangle world = triangle.Transform(geometry.Transform.Matrix);
 
+				// Backface culling
+				if (Vector3.Dot(world.Normal, Vector3.Normalize(world.Centroid - Transform.Position)) > 0)
+					continue;
+
 				// Temp
 				foreach (Triangle t in ClippingUtils.SutherlandHodgmanPolygonClip(world, GetWorldFrustumPlanes()))
 					DrawFilledTriangle(buffer, t, Color.Red);
