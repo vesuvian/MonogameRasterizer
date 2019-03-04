@@ -79,14 +79,13 @@ namespace MonogameRasterizerTests.Utils
 		}
 
 		[Test]
-		public static void PlaneVectorClipTest()
+		public static void PlaneRayClipTest()
 		{
-			Vector3 start = Vector3.Zero;
-			Vector3 direction = Vector3.Up;
+			Ray ray = new Ray(Vector3.Zero, Vector3.Up);
 			Plane clippingPlane = new Plane(Vector3.Up, 0.5f);
 
 			Vector3 intersection;
-			ClippingUtils.PlaneVectorClip(clippingPlane, start, direction, out intersection);
+			ClippingUtils.PlaneRayClip(clippingPlane, ray, out intersection);
 
 			Assert.AreEqual(Vector3.Up / 2.0f, intersection);
 		}

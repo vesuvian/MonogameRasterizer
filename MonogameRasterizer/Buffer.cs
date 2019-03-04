@@ -171,13 +171,6 @@ namespace MonogameRasterizer
 
 		#region Conversion
 
-		public Vector3 CanvasToScreen(Vector3 point)
-		{
-			return new Vector3(point.X / -point.Z,
-			                   point.Y / -point.Z,
-			                   -point.Z);
-		}
-
 		public Vector3 ScreenToRaster(float canvasWidth, float canvasHeight, Vector3 screen)
 		{
 			Vector3 ndc = ScreenToNdc(canvasWidth, canvasHeight, screen);
@@ -196,16 +189,6 @@ namespace MonogameRasterizer
 			return new Vector3(ndc.X * Bounds.Width,
 			                   (1 - ndc.Y) * Bounds.Height,
 			                   ndc.Z);
-		}
-
-		public Triangle CanvasToScreen(Triangle canvas)
-		{
-			return new Triangle
-			{
-				A = CanvasToScreen(canvas.A),
-				B = CanvasToScreen(canvas.B),
-				C = CanvasToScreen(canvas.C)
-			};
 		}
 
 		public Triangle ScreenToRaster(float canvasWidth, float canvasHeight, Triangle screen)

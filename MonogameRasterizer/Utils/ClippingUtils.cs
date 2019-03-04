@@ -156,31 +156,29 @@ namespace MonogameRasterizer.Utils
 			if (p0InFront)
 			{
 				Vector3 direction = Vector3.Normalize(p1 - p0);
-				return PlaneVectorClip(plane, p0, direction, out p1);
+				return PlaneRayClip(plane, new Ray(p0, direction), out p1);
 			}
 			else
 			{
 				Vector3 direction = Vector3.Normalize(p0 - p1);
-				return PlaneVectorClip(plane, p1, direction, out p0);
+				return PlaneRayClip(plane, new Ray(p1, direction), out p0);
 			}
 		}
 
-		public static bool PlaneVectorClip(Plane plane, Vector3 start, Vector3 direction, out Vector3 intersection)
+		public static bool PlaneRayClip(Plane plane, Ray ray, out Vector3 intersection)
 		{
-			intersection = start;
+			intersection = ray.Position;
 
 			// Line and plane are parallel
-			float dotDenominator = Vector3.Dot(direction, plane.Normal);
+			float dotDenominator = Vector3.Dot(ray.Direction, plane.Normal);
 			if (Math.Abs(dotDenominator) < 0.00001f)
 				return false;
 
-			float dotNumerator = -plane.Distance(start);
+			float dotNumerator = -plane.Distance(ray.Position);
 			float length = dotNumerator / dotDenominator;
 
-			intersection = start;
-
 			if (Math.Abs(length) > 0.00001f)
-				intersection += direction * length;
+				intersection += ray.Direction * length;
 
 			return true;
 		}
@@ -231,7 +229,7 @@ namespace MonogameRasterizer.Utils
 						else
 						{
 							Vector3 intersection;
-							PlaneVectorClip(clippingPlane, a, Vector3.Normalize(b - a), out intersection);
+							PlaneRayClip(clippingPlane, new Ray(a, Vector3.Normalize(b - a)), out intersection);
 
 							if (intersection != a)
 								clipped.Add(intersection);
@@ -240,7 +238,7 @@ namespace MonogameRasterizer.Utils
 					else if (bInFront)
 					{
 						Vector3 intersection;
-						PlaneVectorClip(clippingPlane, a, Vector3.Normalize(b - a), out intersection);
+						PlaneRayClip(clippingPlane, new Ray(a, Vector3.Normalize(b - a)), out intersection);
 
 						if (intersection != b)
 							clipped.Add(intersection);

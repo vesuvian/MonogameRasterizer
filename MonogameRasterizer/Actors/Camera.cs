@@ -69,6 +69,8 @@ namespace MonogameRasterizer.Actors
 			return GetLocalFrustumPlanes().Select(p => Plane.Transform(p, Transform.Matrix.Inverse()));
 		}
 
+		#region Drawing
+
 		public void Render(Buffer buffer, GameTime gameTime, Scene scene)
 		{
 			DrawGrid(buffer);
@@ -131,7 +133,7 @@ namespace MonogameRasterizer.Actors
 		{
 			Triangle camera = world.Transform(Transform.Matrix.Inverse());
 			Triangle canvas = camera.Transform(Projection);
-			Triangle screen = buffer.CanvasToScreen(canvas);
+			Triangle screen = CanvasToScreen(canvas);
 			Triangle raster = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screen);
 
 			buffer.DrawFilledTriangle(raster, color);
@@ -139,23 +141,66 @@ namespace MonogameRasterizer.Actors
 
 		private void DrawLine(Buffer buffer, Vector3 worldA, Vector3 worldB, Color color)
 		{
-			Vector3 cameraA = Vector3.Transform(worldA, Transform.Matrix.Inverse());
-			Vector3 cameraB = Vector3.Transform(worldB, Transform.Matrix.Inverse());
+			Vector3 cameraA = WorldToCamera(worldA);
+			Vector3 cameraB = WorldToCamera(worldB);
 
 			foreach (Plane plane in GetLocalFrustumPlanes())
 				if (!ClippingUtils.PlaneLineClip(plane, ref cameraA, ref cameraB))
 					return;
 
-			Vector3 canvasA = VectorUtils.MultiplyPointMatrix(cameraA, Projection);
-			Vector3 canvasB = VectorUtils.MultiplyPointMatrix(cameraB, Projection);
+			Vector3 canvasA = CameraToCanvas(cameraA);
+			Vector3 canvasB = CameraToCanvas(cameraB);
 
-			Vector3 screenA = buffer.CanvasToScreen(canvasA);
-			Vector3 screenB = buffer.CanvasToScreen(canvasB);
+			Vector3 screenA = CanvasToScreen(canvasA);
+			Vector3 screenB = CanvasToScreen(canvasB);
 
 			Vector3 rasterA = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenA);
 			Vector3 rasterB = buffer.ScreenToRaster(CanvasWidth, CanvasHeight, screenB);
 
 			buffer.DrawLine(rasterA, rasterB, color);
 		}
+
+		#endregion
+
+		#region Conversion
+
+		public Vector3 WorldToCamera(Vector3 world)
+		{
+			return Vector3.Transform(world, Transform.Matrix.Inverse());
+		}
+
+		public Vector3 CameraToWorld(Vector3 camera)
+		{
+			return Vector3.Transform(camera, Transform.Matrix);
+		}
+
+		public Vector3 CameraToCanvas(Vector3 camera)
+		{
+			return VectorUtils.MultiplyPointMatrix(camera, Projection);
+		}
+
+		public Vector3 CanvasToCamera(Vector3 canvas)
+		{
+			return VectorUtils.MultiplyPointMatrix(canvas, Projection.Inverse());
+		}
+
+		public Vector3 CanvasToScreen(Vector3 point)
+		{
+			return new Vector3(point.X / -point.Z,
+			                   point.Y / -point.Z,
+			                   -point.Z);
+		}
+
+		public Triangle CanvasToScreen(Triangle canvas)
+		{
+			return new Triangle
+			{
+				A = CanvasToScreen(canvas.A),
+				B = CanvasToScreen(canvas.B),
+				C = CanvasToScreen(canvas.C)
+			};
+		}
+
+		#endregion
 	}
 }

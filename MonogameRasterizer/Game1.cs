@@ -32,11 +32,12 @@ namespace MonogameRasterizer
 		{
 			m_Scene = new Scene();
 
-			var tracedSize = GraphicsDevice.PresentationParameters.Bounds;
+			Rectangle tracedSize = GraphicsDevice.PresentationParameters.Bounds;
 			m_Canvas = new Texture2D(GraphicsDevice, tracedSize.Width, tracedSize.Height, false, SurfaceFormat.Color);
 			m_Buffer = new Buffer
 			{
-				Bounds = tracedSize, Pixels = new uint[tracedSize.Width * tracedSize.Height]
+				Bounds = tracedSize,
+				Pixels = new uint[tracedSize.Width * tracedSize.Height]
 			};
 
 			base.Initialize();
